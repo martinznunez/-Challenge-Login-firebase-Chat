@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import Login from "./components/Login";
 
-function App() {
+import { auth } from "./firebaseConfig";
+import Chat from "./components/Chat";
+
+const App = () => {
+  const [message, setMessage] = useState("");
+
+  const [loggedUser, setLoggedUser] = useState(null);
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user)
+        setLoggedUser({
+          id: user.uid,
+          avatar: user.photoUrl,
+          name: user.displayName,
+        });
+    });
+  }, []);
+
+  if (!loggedUser) {
+    return <Login />;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Chat
+        message={message}
+        setMessage={setMessage}
+        user={loggedUser}
+        setLoggedUser={setLoggedUser}
+      />
+    </>
   );
-}
+};
 
 export default App;
